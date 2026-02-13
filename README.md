@@ -249,7 +249,3 @@ npm start
 - No `console.log` statements in production code
 
 ---
-
-## 📝 License
-
-ISC
