@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Plan {
+  FREE
+  BASIC
+  PRO
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  passwordHash String?
+  googleId  String?  @unique
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+
+  subscription Subscription?
+  payments     Payment[]
+  passwordResetTokens PasswordResetToken[]
+}
+
+model Subscription {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+
+  plan      Plan     @default(FREE)
+  status    SubscriptionStatus @default(TRIALING)
+
+  razorpaySubscriptionId String? @unique
+  trialEndsAt        DateTime?
+  currentPeriodEnd   DateTime?
+
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  amount    Int
+  currency  String   @default("INR")
+  razorpayPaymentId String @unique
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
