@@ -41,6 +41,14 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
+app.get('/', (req, res) => {
+    res.status(200).json({
+        status: 'success',
+        message: 'Welcome to the SASS Backend API',
+        version: '1.0.0'
+    });
+});
+
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
