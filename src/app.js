@@ -27,7 +27,20 @@ app.use(
 );
 
 app.use((req, res, next) => {
-    console.log(`${req.method} ${req.originalUrl}`);
+    // 1. Normalize multiple slashes to single slash (e.g., //auth -> /auth)
+    if (req.url.includes('//')) {
+        req.url = req.url.replace(/\/+/g, '/');
+    }
+
+    // 2. Automatically prefix common routes with /api if it's missing
+    const commonPrefixes = ['/auth', '/billing', '/admin', '/premium', '/webhooks'];
+    const hasCommonPrefix = commonPrefixes.some(prefix => req.url.startsWith(prefix));
+
+    if (hasCommonPrefix && !req.url.startsWith('/api')) {
+        req.url = `/api${req.url}`;
+    }
+
+    console.log(`${req.method} ${req.originalUrl} -> ${req.url}`);
     if (req.method === 'POST' && req.body) console.log('Body keys:', Object.keys(req.body));
     next();
 });
