@@ -13,8 +13,18 @@ const createSubscription = async (userId, plan) => {
         throw new AppError('Invalid plan. Choose BASIC, PRO, or PREMIUM.', 400);
     }
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { subscription: true }
+    });
+
     if (!user) throw new AppError('User not found', 404);
+
+    // Prevent purchase if they already have an active paid plan
+    if (user.subscription && user.subscription.plan !== 'FREE' &&
+        (user.subscription.status === 'ACTIVE' || user.subscription.status === 'TRIALING')) {
+        throw new AppError('You already have an active paid subscription. You can only subscribe to a new plan after your current one ends.', 400);
+    }
 
     const rzpSubscription = await razorpay.subscriptions.create({
         plan_id: PLAN_MAP[plan],
