@@ -2,13 +2,25 @@ const resend = require('../config/resend');
 const AppError = require('../utils/AppError');
 
 const sendEmail = async ({ to, subject, html }) => {
-  const data = await resend.emails.send({
-    from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
-    to,
-    subject,
-    html,
-  });
-  return data;
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+      to,
+      subject,
+      html,
+    });
+
+    if (error) {
+      console.error(`RESEND ERROR sending to ${to}:`, error);
+      throw new Error(error.message || 'Failed to send email');
+    }
+
+    console.log(`Email sent successfully to ${to}. ID: ${data.id}`);
+    return data;
+  } catch (error) {
+    console.error(`FAILED TO SEND EMAIL to ${to}:`, error);
+    throw error;
+  }
 };
 
 const sendWelcomeEmail = async (email) => {

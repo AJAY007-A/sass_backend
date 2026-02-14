@@ -11,14 +11,26 @@ require('./config/passport');
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+}));
 
 app.use(
     cors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        origin: [
+            process.env.FRONTEND_URL || 'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'http://localhost:3000'
+        ],
         credentials: true,
     })
 );
+
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.originalUrl}`);
+    if (req.method === 'POST' && req.body) console.log('Body keys:', Object.keys(req.body));
+    next();
+});
 
 app.use(passport.initialize());
 

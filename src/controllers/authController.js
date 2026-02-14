@@ -3,7 +3,9 @@ const authService = require('../services/authService');
 
 const register = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
+    console.log(`Registration attempt for: ${email}`);
     const { user, token } = await authService.registerUser({ email, password });
+    console.log(`Registration successful for: ${email}`);
 
     res.status(201).json({
         status: 'success',
@@ -14,7 +16,9 @@ const register = asyncHandler(async (req, res) => {
 
 const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
+    console.log(`Login attempt for: ${email}`);
     const { user, token } = await authService.loginUser({ email, password });
+    console.log(`Login successful for: ${email}`);
 
     res.status(200).json({
         status: 'success',

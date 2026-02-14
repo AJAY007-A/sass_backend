@@ -6,12 +6,22 @@ const emailService = require('./emailService');
 const verifySignature = (body, signature) => {
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET;
 
+    if (!signature) {
+        console.error('Webhook Error: No signature provided');
+        return false;
+    }
+
     const expectedSignature = crypto
         .createHmac('sha256', secret)
         .update(JSON.stringify(body))
         .digest('hex');
 
-    return expectedSignature === signature;
+    const isValid = expectedSignature === signature;
+    if (!isValid) {
+        console.error('Webhook Error: Signature mismatch. Check RAZORPAY_WEBHOOK_SECRET.');
+    }
+
+    return isValid;
 };
 
 const processWebhook = async (body, signature) => {

@@ -2,6 +2,11 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const prisma = require('./db');
 
+console.log('--- GOOGLE AUTH CONFIG ---');
+console.log('Client ID:', process.env.GOOGLE_CLIENT_ID ? 'Set' : 'Missing');
+console.log('Callback URL:', process.env.GOOGLE_CALLBACK_URL);
+console.log('--------------------------');
+
 passport.use(
     new GoogleStrategy(
         {
@@ -10,6 +15,7 @@ passport.use(
             callbackURL: process.env.GOOGLE_CALLBACK_URL,
         },
         async (accessToken, refreshToken, profile, done) => {
+            console.log("Google Auth Strategy Initialized with Callback:", process.env.GOOGLE_CALLBACK_URL);
             try {
                 const email = profile.emails[0].value;
 

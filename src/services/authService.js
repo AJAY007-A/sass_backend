@@ -127,9 +127,15 @@ const forgotPassword = async (email) => {
 
     try {
         await emailService.sendPasswordResetEmail(user.email, resetURL);
-    } catch {
+    } catch (error) {
+        console.error('Error in forgotPassword service:', error);
         await prisma.passwordResetToken.deleteMany({ where: { userId: user.id } });
-        throw new AppError('There was an error sending the email. Try again later.', 500);
+
+        const message = process.env.NODE_ENV === 'development'
+            ? `Email error: ${error.message}`
+            : 'There was an error sending the email. Try again later.';
+
+        throw new AppError(message, 500);
     }
 };
 
